@@ -1,91 +1,54 @@
 package com.paani.Paani.service;
 
-import com.paani.Paani.dto.OrderRequestDTO;
-import com.paani.Paani.dto.OrderResponseDTO;
-import com.paani.Paani.entity.Customer;
-import com.paani.Paani.entity.Distributor;
-import com.paani.Paani.entity.Order;
-import com.paani.Paani.entity.enums.Status;
+
+import com.paani.Paani.model.*;
+import com.paani.Paani.repository.OrderRepository;
 import com.paani.Paani.repository.CustomerRepository;
 import com.paani.Paani.repository.DistributorRepository;
-import com.paani.Paani.repository.OrderRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
-@RequiredArgsConstructor
 public class OrderService {
+    @Autowired private OrderRepository orderRepository;
+    @Autowired private CustomerRepository customerRepository;
+    @Autowired private DistributorRepository distributorRepository;
 
-    private final OrderRepository orderRepository;
-    private final CustomerRepository customerRepository;
-    private final DistributorRepository distributorRepository;
 
-    /**
-     * Place a new water order
-     */
-    public String placeOrder(OrderRequestDTO dto) {
-        Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+    private static final double PLATFORM_FEE = 3.5;
 
-        Distributor distributor = distributorRepository.findById(dto.getDistributorId())
-                .orElseThrow(() -> new RuntimeException("Distributor not found"));
 
-        Order order = new Order();
+    public OrderEntity placeOrderForCustomer(Customer customer, Distributor distributor, OrderEntity order) {
+        if (distributor.getApprovalStatus() != ApprovalStatus.APPROVED) throw new RuntimeException("Distributor not approved");
+        if (!"MORNING".equalsIgnoreCase(order.getDeliverySlot()) && !"EVENING".equalsIgnoreCase(order.getDeliverySlot())) {
+            throw new RuntimeException("Invalid delivery slot. Allowed: MORNING, EVENING");
+        }
         order.setCustomer(customer);
         order.setDistributor(distributor);
-        order.setDeliveryDate(LocalDate.parse(dto.getDeliveryDate()));
-        order.setQuantity(dto.getQuantity());
-        order.setTotalAmount(dto.getTotalAmount());
-        order.setStatus(Status.PENDING);
-
-        orderRepository.save(order);
-
-        return "Order placed successfully!";
+        order.setRequestedAt(LocalDateTime.now());
+        order.setStatus("PENDING");
+        return orderRepository.save(order);
     }
 
-    /**
-     * Get all orders by customer
-     */
-    public List<OrderResponseDTO> getOrdersByCustomer(Long customerId) {
-        List<Order> orders = orderRepository.findByCustomerId(customerId);
-        return orders.stream().map(this::mapToResponseDTO).collect(Collectors.toList());
+
+    public OrderEntity placeOrder(Long customerId, Long distributorId, OrderEntity order) {
+        Customer c = customerRepository.findById(customerId).orElseThrow(() -> new RuntimeException("Customer not found"));
+        Distributor d = distributorRepository.findById(distributorId).orElseThrow(() -> new RuntimeException("Distributor not found"));
+        return placeOrderForCustomer(c, d, order);
     }
 
-    /**
-     * Get all orders for a distributor
-     */
-    public List<OrderResponseDTO> getOrdersByDistributor(Long distributorId) {
-        List<Order> orders = orderRepository.findByDistributorId(distributorId);
-        return orders.stream().map(this::mapToResponseDTO).collect(Collectors.toList());
+
+    public List<OrderEntity> getOrdersForDistributor(Long distributorId) {
+        Distributor d = distributorRepository.findById(distributorId).orElseThrow(() -> new RuntimeException("Distributor not found"));
+        return orderRepository.findByDistributor(d);
     }
 
-    /**
-     * Update order status (for admin or distributor)
-     */
-    public String updateOrderStatus(Long orderId, Status status) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-        order.setStatus(status);
-        orderRepository.save(order);
-        return "Order status updated to " + status.name();
-    }
-
-    /**
-     * Map entity to DTO
-     */
-    private OrderResponseDTO mapToResponseDTO(Order order) {
-        OrderResponseDTO dto = new OrderResponseDTO();
-        dto.setId(order.getId());
-        dto.setCustomerName(order.getCustomer().getName());
-        dto.setDistributorName(order.getDistributor().getCompanyName());
-        dto.setDeliveryDate(order.getDeliveryDate().toString());
-        dto.setQuantity(order.getQuantity());
-        dto.setTotalAmount(order.getTotalAmount());
-        dto.setStatus(order.getStatus().name());
-        return dto;
+    public List<OrderEntity> getOrdersForCustomer(Customer customer) {
+        return orderRepository.findByCustomer(customer);
     }
 }

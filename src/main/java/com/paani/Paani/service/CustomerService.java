@@ -1,49 +1,39 @@
 package com.paani.Paani.service;
 
-import com.paani.Paani.dto.CustomerRegisterDTO;
-import com.paani.Paani.dto.CustomerResponseDTO;
-import com.paani.Paani.entity.Customer;
+
+import com.paani.Paani.model.Customer;
+import com.paani.Paani.model.User;
 import com.paani.Paani.repository.CustomerRepository;
-import lombok.RequiredArgsConstructor;
+import com.paani.Paani.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+
+import java.time.LocalDate;
+
 
 @Service
-@RequiredArgsConstructor
 public class CustomerService {
+    @Autowired private CustomerRepository customerRepository;
+    @Autowired private UserRepository userRepository;
 
-    private final CustomerRepository customerRepository;
 
-    public String registerCustomer(CustomerRegisterDTO dto) {
-        if (customerRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Email already registered!");
+    public Customer createCustomerForUser(String username, Customer c) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        c.setUser(user);
+        if (c.getSubscriptionType() != null && !c.getSubscriptionType().isBlank()) {
+            c.setSubscriptionStartDate(LocalDate.now());
+            if ("MONTHLY".equalsIgnoreCase(c.getSubscriptionType())) c.setSubscriptionEndDate(LocalDate.now().plusMonths(1));
+            else if ("WEEKLY".equalsIgnoreCase(c.getSubscriptionType())) c.setSubscriptionEndDate(LocalDate.now().plusWeeks(1));
+            else if ("DAILY".equalsIgnoreCase(c.getSubscriptionType())) c.setSubscriptionEndDate(LocalDate.now().plusDays(1));
         }
-
-        Customer c = new Customer();
-        c.setName(dto.getName());
-        c.setEmail(dto.getEmail());
-        c.setPassword(dto.getPassword());
-        c.setPhone(dto.getPhone());
-        c.setAddress(dto.getAddress());
-        customerRepository.save(c);
-
-        return "Customer registered successfully!";
+        user.setCustomer(c);
+        userRepository.save(user);
+        return customerRepository.save(c);
     }
 
-    public List<CustomerResponseDTO> getAllCustomers() {
-        return customerRepository.findAll()
-                .stream()
-                .map(c -> {
-                    CustomerResponseDTO dto = new CustomerResponseDTO();
-                    dto.setId(c.getId());
-                    dto.setName(c.getName());
-                    dto.setEmail(c.getEmail());
-                    dto.setPhone(c.getPhone());
-                    dto.setAddress(c.getAddress());
-                    return dto;
-                })
-                .collect(Collectors.toList());
+    public Customer getCustomerByUsername(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getCustomer();
     }
 }
