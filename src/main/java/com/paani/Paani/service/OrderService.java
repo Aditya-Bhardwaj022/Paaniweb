@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.DayOfWeek;
 import java.util.List;
 
 
@@ -24,6 +27,10 @@ public class OrderService {
 
 
     public OrderEntity placeOrderForCustomer(Customer customer, Distributor distributor, OrderEntity order) {
+        DayOfWeek day = LocalDate.now().getDayOfWeek();
+        if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY) {
+            throw new RuntimeException("Orders can only be placed on weekends");
+        }
         if (distributor.getApprovalStatus() != ApprovalStatus.APPROVED) throw new RuntimeException("Distributor not approved");
         if (!"MORNING".equalsIgnoreCase(order.getDeliverySlot()) && !"EVENING".equalsIgnoreCase(order.getDeliverySlot())) {
             throw new RuntimeException("Invalid delivery slot. Allowed: MORNING, EVENING");
@@ -40,6 +47,24 @@ public class OrderService {
         Customer c = customerRepository.findById(customerId).orElseThrow(() -> new RuntimeException("Customer not found"));
         Distributor d = distributorRepository.findById(distributorId).orElseThrow(() -> new RuntimeException("Distributor not found"));
         return placeOrderForCustomer(c, d, order);
+    }
+
+    public OrderEntity completeOrder(Distributor distributor, Long orderId) {
+        OrderEntity order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        if (!order.getDistributor().getId().equals(distributor.getId())) {
+            throw new RuntimeException("Order does not belong to this distributor");
+        }
+
+        LocalTime time = LocalTime.now();
+        boolean isMorning = !time.isBefore(LocalTime.of(7, 0)) && !time.isAfter(LocalTime.of(10, 0));
+        boolean isEvening = !time.isBefore(LocalTime.of(19, 0)) && !time.isAfter(LocalTime.of(21, 0));
+
+        if (!isMorning && !isEvening) {
+            throw new RuntimeException("Orders can only be completed between 7-10 AM or 7-9 PM");
+        }
+
+        order.setStatus("DELIVERED");
+        return orderRepository.save(order);
     }
 
 

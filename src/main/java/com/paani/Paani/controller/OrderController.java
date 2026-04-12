@@ -5,10 +5,8 @@ import com.paani.Paani.dto.OrderRequest;
 import com.paani.Paani.model.Customer;
 import com.paani.Paani.model.Distributor;
 import com.paani.Paani.model.OrderEntity;
-import com.paani.Paani.model.User;
-import com.paani.Paani.repository.CustomerRepository;
-import com.paani.Paani.repository.DistributorRepository;
-import com.paani.Paani.repository.UserRepository;
+import com.paani.Paani.service.CustomerService;
+import com.paani.Paani.service.DistributorService;
 import com.paani.Paani.service.OrderService;
 import com.paani.Paani.service.PaymentService;
 import com.paani.Paani.model.Payment;
@@ -26,9 +24,8 @@ import java.util.List;
 @RequestMapping("/api/orders")
 public class OrderController {
     @Autowired private OrderService orderService;
-    @Autowired private UserRepository userRepository;
-    @Autowired private CustomerRepository customerRepository;
-    @Autowired private DistributorRepository distributorRepository;
+    @Autowired private CustomerService customerService;
+    @Autowired private DistributorService distributorService;
     @Autowired private PaymentService paymentService;
 
 
@@ -36,10 +33,9 @@ public class OrderController {
     @PostMapping("/place/{distributorId}")
     public ResponseEntity<?> placeOrder(Authentication authentication, @PathVariable Long distributorId, @Valid @RequestBody OrderRequest req) {
         String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        Customer customer = user.getCustomer();
+        Customer customer = customerService.getCustomerByUsername(username);
         if (customer == null) throw new RuntimeException("Create customer profile first");
-        Distributor distributor = distributorRepository.findById(distributorId).orElseThrow(() -> new RuntimeException("Distributor not found"));
+        Distributor distributor = distributorService.getDistributorById(distributorId);
 
 
         OrderEntity order = OrderEntity.builder().quantity(req.getQuantity()).deliverySlot(req.getDeliverySlot()).amount(req.getAmount()).build();
@@ -56,4 +52,13 @@ public class OrderController {
 
 
     @GetMapping("/distributor/{distributorId}") public ResponseEntity<List<OrderEntity>> ordersForDistributor(@PathVariable Long distributorId) { return ResponseEntity.ok(orderService.getOrdersForDistributor(distributorId)); }
+
+    @PostMapping("/complete/{orderId}")
+    public ResponseEntity<?> completeOrder(Authentication authentication, @PathVariable Long orderId) {
+        String username = authentication.getName();
+        Distributor distributor = distributorService.getDistributorByUsername(username);
+        if (distributor == null) throw new RuntimeException("Create distributor profile first");
+        OrderEntity completed = orderService.completeOrder(distributor, orderId);
+        return ResponseEntity.ok(completed);
+    }
 }

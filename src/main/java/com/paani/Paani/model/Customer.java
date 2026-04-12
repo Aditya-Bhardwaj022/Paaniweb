@@ -4,6 +4,7 @@ package com.paani.Paani.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Entity
@@ -30,6 +31,7 @@ public class Customer {
     private LocalDate subscriptionEndDate;
 
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;

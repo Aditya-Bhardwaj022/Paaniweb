@@ -42,4 +42,13 @@ public class DistributorService {
         d.setApprovalStatus(ApprovalStatus.REJECTED);
         return distributorRepository.save(d);
     }
+
+    public Distributor getDistributorById(Long id) {
+        return distributorRepository.findById(id).orElseThrow(() -> new RuntimeException("Distributor not found"));
+    }
+
+    public Distributor getDistributorByUsername(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getDistributor();
+    }
 }

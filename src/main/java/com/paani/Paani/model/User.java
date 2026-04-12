@@ -2,6 +2,7 @@ package com.paani.Paani.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users")
@@ -22,6 +23,7 @@ public class User {
     @Column(unique = true, nullable = false, length = 100)
     private String email;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 

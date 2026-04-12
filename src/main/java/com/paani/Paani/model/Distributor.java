@@ -3,6 +3,7 @@ package com.paani.Paani.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "distributors")
@@ -26,18 +27,12 @@ public class Distributor {
     @Enumerated(EnumType.STRING)
     private ApprovalStatus approvalStatus = ApprovalStatus.PENDING;
 
-    // ✅ Links distributor to the User account
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
-
-    // ✅ Marks when 3-month free trial begins
     private Long trialStartTimestamp;
-
-    // ✅ For future billing integration
     private Boolean subscriptionActive = false;
-
-    // ✅ Timestamps
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
 
