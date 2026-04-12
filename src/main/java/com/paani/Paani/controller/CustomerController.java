@@ -3,8 +3,6 @@ package com.paani.Paani.controller;
 
 import com.paani.Paani.dto.CustomerRequest;
 import com.paani.Paani.model.Customer;
-import com.paani.Paani.model.User;
-import com.paani.Paani.repository.UserRepository;
 import com.paani.Paani.service.CustomerService;
 import com.paani.Paani.service.OrderService;
 import jakarta.validation.Valid;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/customer")
 public class CustomerController {
     @Autowired private CustomerService customerService;
-    @Autowired private UserRepository userRepository;
     @Autowired private OrderService orderService;
 
 
@@ -34,15 +31,13 @@ public class CustomerController {
     @GetMapping("/me")
     public ResponseEntity<?> myProfile(Authentication authentication) {
         String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(user.getCustomer());
+        return ResponseEntity.ok(customerService.getCustomerByUsername(username));
     }
 
     @GetMapping("/orders")
     public ResponseEntity<?> getMyOrders(Authentication authentication) {
         String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        Customer customer = user.getCustomer();
+        Customer customer = customerService.getCustomerByUsername(username);
         if (customer == null) {
             return ResponseEntity.badRequest().body("Customer profile not found");
         }
