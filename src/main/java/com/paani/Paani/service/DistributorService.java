@@ -25,7 +25,7 @@ public class DistributorService {
         d.setApprovalStatus(ApprovalStatus.PENDING);
         d.setTrialStartTimestamp(Instant.now().toEpochMilli());
         user.setDistributor(d);
-        userRepository.save(user);
+        userRepository. save(user);
         return distributorRepository.save(d);
     }
 
