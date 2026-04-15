@@ -22,7 +22,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest req) {
         if (userRepository.existsByUsername(req.getUsername())) throw new RuntimeException("Username already taken");
-        User user = User.builder().username(req.getUsername()).password(passwordEncoder.encode(req.getPassword())).role(Role.CUSTOMER).build();
+        User user = User.builder().username(req.getUsername()).email(req.getEmail()).password(passwordEncoder.encode(req.getPassword())).role(req.getRole() != null ? req.getRole() : Role.CUSTOMER).build();
         userRepository.save(user);
         String token = jwtProvider.generateToken(user.getUsername());
         return new AuthResponse(token);
