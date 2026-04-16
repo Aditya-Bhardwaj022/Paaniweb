@@ -8,6 +8,7 @@ import com.paani.Paani.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -19,12 +20,20 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest req) {
-        return ResponseEntity.ok(authService.register(req));
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest req) {
+        authService.register(req);
+        return ResponseEntity.ok("User registered successfully");
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest req) {
         return ResponseEntity.ok(authService.login(req));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUser(Authentication authentication) {
+        String username = authentication.getName();
+        authService.deleteUser(username);
+        return ResponseEntity.ok("User deleted successfully");
     }
 }

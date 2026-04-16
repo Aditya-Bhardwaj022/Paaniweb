@@ -20,12 +20,10 @@ public class AuthService {
     @Autowired private JwtProvider jwtProvider;
 
 
-    public AuthResponse register(RegisterRequest req) {
+    public void register(RegisterRequest req) {
         if (userRepository.existsByUsername(req.getUsername())) throw new RuntimeException("Username already taken");
         User user = User.builder().username(req.getUsername()).email(req.getEmail()).password(passwordEncoder.encode(req.getPassword())).role(req.getRole() != null ? req.getRole() : Role.CUSTOMER).build();
         userRepository.save(user);
-        String token = jwtProvider.generateToken(user.getUsername());
-        return new AuthResponse(token);
     }
 
 
@@ -34,5 +32,12 @@ public class AuthService {
         if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) throw new RuntimeException("Invalid credentials");
         String token = jwtProvider.generateToken(user.getUsername());
         return new AuthResponse(token);
+    }
+
+
+    public void deleteUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository.delete(user);
     }
 }
