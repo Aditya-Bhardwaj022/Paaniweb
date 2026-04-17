@@ -10,5 +10,5 @@ import lombok.Data;
 public class PaymentRequest {
     @NotNull private Long orderId;
     @NotNull private Double amount;
-    @NotBlank private String gateway; // MOCK, RAZORPAY, STRIPE
+    @NotBlank private String  gateway; // MOCK, RAZORPAY, STRIPE
 }

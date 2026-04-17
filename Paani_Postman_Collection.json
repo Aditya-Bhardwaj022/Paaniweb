@@ -21,24 +21,18 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"customer1\",\n  \"email\": \"customer1@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"CUSTOMER\"\n}"
+              "raw": "{\n  \"username\": \"customer1\",\n  \"email\": \"customer1@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"CUSTOMER\",\n  \"fullName\": \"John Doe\",\n  \"address\": \"123 Water Lane, City\",\n  \"phoneNumber\": \"9876543210\",\n  \"subscriptionType\": \"DAILY\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
             }
           },
           "response": []
         },
         {
-          "name": "1.2 Register Distributor User",
+          "name": "1.2 Register Distributor",
           "request": {
             "method": "POST",
             "header": [
@@ -49,18 +43,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"distributor1\",\n  \"email\": \"distributor1@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"DISTRIBUTOR\"\n}"
+              "raw": "{\n  \"username\": \"distributor1\",\n  \"email\": \"distributor1@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"DISTRIBUTOR\",\n  \"distributorName\": \"Paani Express\",\n  \"licenseNumber\": \"LIC-998877\",\n  \"serviceArea\": \"North City\",\n  \"capacityPerDay\": 500,\n  \"contactNumber\": \"1122334455\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
             }
           },
           "response": []
@@ -96,14 +84,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
             }
           },
           "response": []
@@ -139,25 +121,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
             }
           },
           "response": []
-        }
-      ]
-    },
-    {
-      "name": "2. Customer Operations (Login as customer1 first)",
-      "item": [
+        },
         {
-          "name": "2.1 Create Customer Profile",
+          "name": "1.5 Delete My Account",
           "request": {
             "auth": {
               "type": "bearer",
@@ -169,33 +140,23 @@
                 }
               ]
             },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fullName\": \"John Doe\",\n  \"address\": \"123 Water Lane, City\",\n  \"phoneNumber\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"subscriptionType\": \"DAILY\"\n}"
-            },
+            "method": "DELETE",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/customer/create",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "customer",
-                "create"
-              ]
+              "raw": "{{baseUrl}}/api/auth/delete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "delete"]
             }
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "2. Customer Operations (Login as customer1 first)",
+      "item": [
         {
-          "name": "2.2 Get My Profile",
+          "name": "2.1 Get My Profile",
           "request": {
             "auth": {
               "type": "bearer",
@@ -211,20 +172,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/customer/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "customer",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customer", "me"]
             }
           },
           "response": []
         },
         {
-          "name": "2.3 Get My Orders",
+          "name": "2.2 Get My Orders",
           "request": {
             "auth": {
               "type": "bearer",
@@ -240,14 +195,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/customer/orders",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "customer",
-                "orders"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customer", "orders"]
             }
           },
           "response": []
@@ -258,45 +207,7 @@
       "name": "3. Distributor Operations (Login as distributor1 first)",
       "item": [
         {
-          "name": "3.1 Create Distributor Profile",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{jwt_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"distributorName\": \"Paani Express\",\n  \"licenseNumber\": \"LIC-998877\",\n  \"serviceArea\": \"North City\",\n  \"capacityPerDay\": 500,\n  \"contactNumber\": \"1122334455\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/distributor/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "distributor",
-                "register"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "3.2 Get Distributor Profile",
+          "name": "3.1 Get Distributor Profile",
           "request": {
             "auth": {
               "type": "bearer",
@@ -312,20 +223,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/distributor/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "distributor",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "distributor", "me"]
             }
           },
           "response": []
         },
         {
-          "name": "3.3 Approve Distributor",
+          "name": "3.2 Approve Distributor",
           "request": {
             "auth": {
               "type": "bearer",
@@ -341,21 +246,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/distributor/approve/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "distributor",
-                "approve",
-                "1"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "distributor", "approve", "1"]
             }
           },
           "response": []
         },
         {
-          "name": "3.4 Reject Distributor",
+          "name": "3.3 Reject Distributor",
           "request": {
             "auth": {
               "type": "bearer",
@@ -371,15 +269,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/distributor/reject/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "distributor",
-                "reject",
-                "1"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "distributor", "reject", "1"]
             }
           },
           "response": []
@@ -415,15 +306,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/orders/place/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "orders",
-                "place",
-                "1"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", "place", "1"]
             }
           },
           "response": []
@@ -445,15 +329,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/orders/distributor/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "orders",
-                "distributor",
-                "1"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", "distributor", "1"]
             }
           },
           "response": []
@@ -475,15 +352,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/orders/complete/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "orders",
-                "complete",
-                "1"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", "complete", "1"]
             }
           },
           "response": []
@@ -519,14 +389,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/payments/initiate",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "payments",
-                "initiate"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payments", "initiate"]
             }
           },
           "response": []
@@ -548,15 +412,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/payments/confirm/1?status=SUCCESS",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "payments",
-                "confirm",
-                "1"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payments", "confirm", "1"],
               "query": [
                 {
                   "key": "status",
